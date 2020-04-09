@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'role_id', 'email', 'password',
     ];
 
     /**
@@ -26,4 +26,22 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function authorizeRoles($roles)
+    {
+       return $this->hasRole($roles) || abort(401, 'Prohibited.');
+    }
+
+    public function hasRoles($roles)
+    {
+        if(is_array($roles))
+            return null !== $this->roles()->whereIn('name', $roles)->first();
+
+        return null !== $this->roles()->where('name', $roles)->first();
+    }
 }
